@@ -15,7 +15,17 @@
 * 列出所有的未完成的待办事项
 * 支持按照不同的方式排序
 
-### 成果展示：
+### 界面展示
+  
+1. **TaskList**
+
+ ![](https://d3dr1ze7164817.cloudfront.net/items/2Q3K0Q3I3s0S181V043f/FireShot%20Capture%209%20-%20TaskList%20-%20http___127.0.0.1_8000_task_.png?X-CloudApp-Visitor-Id=2759577)
+
+2. **TaskDetail**
+
+![](https://d3dr1ze7164817.cloudfront.net/items/1O2Y3D2Y3D0Y1p2U0b42/FireShot%20Capture%2010%20-%20TaskDetail%20-%20http___127.0.0.1_8000_task_47_.png?X-CloudApp-Visitor-Id=2759577)
+
+### 功能展示
 
 1. **创建待办事项**
 
@@ -35,6 +45,8 @@
 
 
 4. **编辑（修改）一个待办事项的具体内容**
+
+这里修改的表单中如果不填入内容，就默认不改变
 
 ![](https://d3dr1ze7164817.cloudfront.net/items/3Y310U403T0a0w2p2m00/Screen%20recording%202017-05-14%20at%2006.15.32%20PM.gif?X-CloudApp-Visitor-Id=2759577)
 
