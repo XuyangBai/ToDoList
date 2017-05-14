@@ -1,6 +1,6 @@
 # ToDoList
 
-## 任务要求
+### 任务要求
 
 使用 Django, Django Rest Framework, Bootstrap, PostgreSQL (optional), React+React Router+ Redux + Redux API (optional), jQuery (optional) 等技术做一个待办事项的网站。
 
@@ -15,9 +15,9 @@
 * 列出所有的未完成的待办事项
 * 支持按照不同的方式排序
 
-## 成果展示：
+### 成果展示：
 
-1. 创建待办事项
+###1. 创建待办事项
 
 事项有 `title,content,expire_date,priority` 这几个属性
 
