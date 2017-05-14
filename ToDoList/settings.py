@@ -44,8 +44,11 @@ INSTALLED_APPS = [
 
 # Rest_framework 所有有关rest框架的设定都在这里
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'PAGE_SIZE': 10
 }
