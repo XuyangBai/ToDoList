@@ -61,3 +61,10 @@
 目前设计的有 **按创建时间排序（默认）, 按过期时间排序 , 按优先级排序**
 
 ![](https://d3dr1ze7164817.cloudfront.net/items/1P0M1F1A081t3N1P2z13/Screen%20recording%202017-05-14%20at%2006.23.44%20PM.gif?X-CloudApp-Visitor-Id=2759577)
+
+
+### 改进方向
+
+1. 列表界面支持翻页
+2. 把Sqlite换成PostgreSQL
+2. 使用React,Redux构建界面,美化界面
