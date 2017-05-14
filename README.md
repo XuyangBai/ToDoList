@@ -4,7 +4,7 @@
 
 使用 Django, Django Rest Framework, Bootstrap, PostgreSQL (optional), React+React Router+ Redux + Redux API (optional), jQuery (optional) 等技术做一个待办事项的网站。
 
-一个参考的例子：(todoist.com)[http://todoist.com/]
+一个参考的例子：[todoist.com](http://todoist.com/)
 
 实现的功能：
 
