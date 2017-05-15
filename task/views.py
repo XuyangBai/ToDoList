@@ -1,12 +1,12 @@
 # coding=utf-8
-
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
+from rest_framework import generics
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.reverse import reverse
-from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -24,7 +24,7 @@ class TaskList(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = (BasicAuthentication,)
 
-    def get(self, request):
+    def get(self, request, format=None):
         """
         :param request:
         :return: 返回所有任务列表
@@ -43,7 +43,7 @@ class TaskList(APIView):
             tasks = Task.objects.all()
         return Response({'tasks': tasks})
 
-    def post(self, request):
+    def post(self, request, format=None):
         """
         :param request:
         :return:
@@ -57,6 +57,7 @@ class TaskList(APIView):
             serializer.save(owner=owner)
             return self.get(request)
         else:
+            ipdb.set_trace()
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -66,9 +67,16 @@ class TaskDetail(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = (BasicAuthentication,)
 
-    def get(self, request, pk):
+    def get(self, request, pk, format=None):
         task = get_object_or_404(Task, pk=pk)
         return Response({'task': task})
+        #
+        # if request.accepted_media_type == u'application/json':
+        #     serializer_context = {'request': request, }
+        #     serializer = TaskSerializer(task, context=serializer_context)
+        #     return Response(serializer.data)
+        # else:
+        #     return Response({'task': task})
 
     def put(self, request, pk):
         # ipdb.set_trace()
@@ -86,10 +94,13 @@ class TaskDetail(APIView):
         task = get_object_or_404(Task, pk=pk)
         task.delete()
         # ipdb.set_trace()
-        return Response({'task': None})
+        # 删除之后回到主页
+        return HttpResponseRedirect(reverse('task-list'))
+        # 删除之后在原始页面 提示删除成功
+        # return Response({'task': None})
 
     # 按理说这里不应该有post的 但是发来的HTTP request不进入另外两个函数
-    def post(self, request, pk):
+    def post(self, request, pk, format=None):
         # ipdb.set_trace()
         if request.data['_method'] == u'DELETE':
             # del request.data['_method']
@@ -102,44 +113,15 @@ class TaskDetail(APIView):
             return response
 
 
-# 用户页面是只读的 使用ListAPIView 和 RetrieveAPIView
-class UserList(APIView):
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'UserList.html'
-
-    def get(self, request):
-        users = User.objects.all()
-        return Response({'users': users})
+class UserList(generics.ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 class UserDetail(APIView):
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'UserDetail.html'
-
-    def get(self, request, pk):
-        user = get_object_or_404(User, pk=pk)
-        serializer_context = {
-            'request': request,
-        }
-        serializer = UserSerializer(user, context=serializer_context)
-        return Response({'serializer': serializer, 'user': user})
-
-    def post(self, request, pk):
-        serializer_context = {
-            'request': request,
-        }
-        user = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(user, data=request.data, context=serializer_context)
-        if not serializer.is_valid():
-            print "Serialzer is not Valid"
-            return Response({'serializer': serializer, 'user': user})
-        serializer.save()
-        return redirect('user-list')
-
-
-class CreateUserView(CreateAPIView):
-    model = User
-    # permission_classes = [permissions.AllowAny] #所有人都可以注册
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
@@ -149,3 +131,18 @@ def api_root(request, format=None):
         'users': reverse('user-list', request=request, format=format),
         'task': reverse('task-list', request=request, format=format)
     })
+
+
+def register(request):
+    registered = False
+    if request.method == "POST":
+        serializer = UserSerializer(data=request.POST)
+        if serializer.is_valid():
+            serializer.save()
+            registered = True
+            return HttpResponseRedirect(reverse('task-list'))
+        else:
+            print serializer.errors
+    else:
+        serializer = UserSerializer()
+    return render(request, 'register.html', {'registered': registered})

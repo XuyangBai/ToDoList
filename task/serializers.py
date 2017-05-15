@@ -2,23 +2,30 @@
 from rest_framework import serializers
 from task.models import Task
 from django.contrib.auth.models import User
-
+import datetime
 
 #  owner放在那个里面无所谓吗？
 
 class TaskSerializer(serializers.HyperlinkedModelSerializer):
-
     owner = serializers.ReadOnlyField(source='owner.username')
+    expire_date = serializers.DateField()
+
+    def validate(self, data):
+        if datetime.date.today() > data['expire_date']:
+            raise serializers.ValidationError("Expire Time Must After Created Time")
+        else:
+            return data
+
     class Meta:
         model = Task
-        fields = ('url','id','owner','created','title','content','finished','priority','expire_date')
+        fields = ('url', 'id', 'owner', 'created', 'title', 'content', 'finished', 'priority', 'expire_date')
 
 
-class UserSerializer(serializers.ModelSerializer):
-
+class UserSerializer(serializers.HyperlinkedModelSerializer):
     task = serializers.PrimaryKeyRelatedField(many=True, queryset=Task.objects.all())
-    #owner = serializers.ReadOnlyField(source='owner.username')
-    #password = serializers.CharField(write_only=True)
+
+    # owner = serializers.ReadOnlyField(source='owner.username')
+    # password = serializers.CharField(write_only=True)
     # def create(self, validated_data):
     #     user = User.objects.create(
     #         username=validated_data['username'],
@@ -30,4 +37,4 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('url','username','task')
+        fields = ('url', 'id', 'username', 'task')
