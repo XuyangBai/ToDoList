@@ -2,7 +2,7 @@
 import ipdb
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
@@ -21,7 +21,7 @@ from task.serializers import TaskSerializer, UserSerializer
 class TaskList(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'TaskList.html'
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (BasicAuthentication, SessionAuthentication)
 
     def get(self, request, format=None):
@@ -54,7 +54,6 @@ class TaskList(APIView):
 class TaskDetail(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'TaskDetail.html'
-    # 现在就是设置了permission_classes 没有用啊 只有IsAuthentication认证的才有用
     permission_classes = (IsOwnerOrReadOnly, permissions.IsAuthenticated)
     authentication_classes = (BasicAuthentication, SessionAuthentication)
 
@@ -73,7 +72,6 @@ class TaskDetail(APIView):
         # ipdb.set_trace()
         task = get_object_or_404(Task, pk=pk)
         serializer = TaskSerializer(task, data=request.data)
-        # 如果put失败了就  返回400bad
         if not serializer.is_valid():
             ipdb.set_trace()
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -81,7 +79,7 @@ class TaskDetail(APIView):
         return Response({'task': get_object_or_404(Task, pk=pk)})
 
     def delete(self, request, pk):
-        # ipdb.set_trace()
+        #ipdb.set_trace()
         task = get_object_or_404(Task, pk=pk)
         task.delete()
         # 删除之后回到主页
@@ -129,7 +127,7 @@ def register(request):
     if request.method == "POST":
         user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
         user.save()
-        ipdb.set_trace()
-        return render(request, reverse('task-list'))
+        # ipdb.set_trace()
+        return redirect(reverse('task-list'))
     else:
         return render(request, 'register.html', {'registered': registered})
