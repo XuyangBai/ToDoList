@@ -1,47 +1,7 @@
-{% load rest_framework %}
-{% load staticfiles %}
-<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
-<head>
-    <meta charset="UTF-8">
-    <!-- 引入 Jquery -->
-    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
-    <script src="http://v3.bootcss.com/examples/offcanvas/offcanvas.js"></script>
+{% extends "base.html" %}
 
-    <!-- 引入 Bootstrap -->
-    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
-    <link href="{% static 'bootstrap/css/bootstrap.css' %}" rel="stylesheet" type="text/css">
-    {#    <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>#}
-    <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
 
-    <!-- Custom styles for this template -->
-    <link href="http://v3.bootcss.com/examples/offcanvas/offcanvas.css" rel="stylesheet">
-
-    <title>TaskList</title>
-</head>
-
-<nav class="navbar navbar-fixed-top navbar-inverse">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">ToDoList</a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="{% url 'task-list' %}">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </div><!-- /.nav-collapse -->
-    </div><!-- /.container -->
-</nav><!-- /.navbar -->
-
-<div class="container">
+{% block content %}
 
     <div class="row row-offcanvas row-offcanvas-right">
 
@@ -72,6 +32,7 @@
                             <h4 class="modal-title" id="exampleModalLabel">New Task</h4>
                         </div>
                         <form method="POST" action="{% url 'task-list' %}" enctype="multipart/form-data">
+                             {% csrf_token %}
                             <fieldset>
                                 <div class="modal-body">
                                     <div class="form-group">
@@ -153,11 +114,5 @@
 
 </div><!--/.container-->
 
-<script>
-    $(".list-group-item").on("click", function () {
-        $(".list-group-item").removeClass("active");
-        $(this).addClass("active")
-    })</script>
 
-</body>
-</html>
+{% endblock %}
