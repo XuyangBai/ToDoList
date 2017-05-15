@@ -1,10 +1,11 @@
 # coding=utf-8
-from rest_framework import serializers
-from task.models import Task
-from django.contrib.auth.models import User
 import datetime
 
-#  owner放在那个里面无所谓吗？
+from django.contrib.auth.models import User
+from rest_framework import serializers
+
+from task.models import Task
+
 
 class TaskSerializer(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')

@@ -1,35 +1,30 @@
 # coding=utf-8
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404, redirect
-from rest_framework import generics
-from rest_framework import status
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.decorators import api_view
-from rest_framework.permissions import AllowAny
-from rest_framework.reverse import reverse
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.renderers import TemplateHTMLRenderer
-from task.models import Task
-from task.serializers import TaskSerializer, UserSerializer
-from django.contrib.auth.models import User
-from rest_framework import permissions
-from task.permissions import IsOwnerOrReadOnly
 import ipdb
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
+from rest_framework import generics
+from rest_framework import permissions
+from rest_framework import status
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
+from rest_framework.decorators import api_view
+from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework.views import APIView
+
+from task.models import Task
+from task.permissions import IsOwnerOrReadOnly
+from task.serializers import TaskSerializer, UserSerializer
 
 
 class TaskList(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'TaskList.html'
-    permission_classes = (AllowAny,)
-    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsOwnerOrReadOnly,)
+    authentication_classes = (BasicAuthentication, SessionAuthentication)
 
     def get(self, request, format=None):
-        """
-        :param request:
-        :return: 返回所有任务列表
-        """
-        # ipdb.set_trace()
         screen = request.GET.get('screen')
         if screen == u'ALL_NOT_FINISHED':
             tasks = Task.objects.filter(finished__exact=0)
@@ -44,11 +39,6 @@ class TaskList(APIView):
         return Response({'tasks': tasks})
 
     def post(self, request, format=None):
-        """
-        :param request:
-        :return:
-        """
-        # ipdb.set_trace()
 
         owner = request.user
         serializer_context = {'request': request, }
@@ -64,8 +54,9 @@ class TaskList(APIView):
 class TaskDetail(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'TaskDetail.html'
-    permission_classes = (AllowAny,)
-    authentication_classes = (BasicAuthentication,)
+    # 现在就是设置了permission_classes 没有用啊 只有IsAuthentication认证的才有用
+    permission_classes = (IsOwnerOrReadOnly, permissions.IsAuthenticated)
+    authentication_classes = (BasicAuthentication, SessionAuthentication)
 
     def get(self, request, pk, format=None):
         task = get_object_or_404(Task, pk=pk)
@@ -93,7 +84,6 @@ class TaskDetail(APIView):
         # ipdb.set_trace()
         task = get_object_or_404(Task, pk=pk)
         task.delete()
-        # ipdb.set_trace()
         # 删除之后回到主页
         return HttpResponseRedirect(reverse('task-list'))
         # 删除之后在原始页面 提示删除成功
@@ -113,14 +103,15 @@ class TaskDetail(APIView):
             return response
 
 
-class UserList(generics.ListCreateAPIView):
+class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # 只有超级用户可以看
+    permission_classes = [permissions.IsAdminUser]
 
 
-class UserDetail(APIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+class UserDetail(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAdminUser]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -136,13 +127,9 @@ def api_root(request, format=None):
 def register(request):
     registered = False
     if request.method == "POST":
-        serializer = UserSerializer(data=request.POST)
-        if serializer.is_valid():
-            serializer.save()
-            registered = True
-            return HttpResponseRedirect(reverse('task-list'))
-        else:
-            print serializer.errors
+        user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
+        user.save()
+        ipdb.set_trace()
+        return render(request, reverse('task-list'))
     else:
-        serializer = UserSerializer()
-    return render(request, 'register.html', {'registered': registered})
+        return render(request, 'register.html', {'registered': registered})
