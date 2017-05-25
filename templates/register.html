@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if registered %}
+
+        <div class="col-xs-12 col-sm-9">
+            <div class="jumbotron">
+                <h1>Welcome to ToDoList!</h1>
+                <p href="{% url 'task-list' %}">Let's Manage your time</p>
+            </div>
+        </div>
+
+    {% else %}
+
+        <div class="col-xs-12 col-sm-9">
+            <div class="jumbotron">
+                <h1>Hello!</h1>
+                <p>马上注册吧!</p>
+            </div>
+
+            <form id="user_form" method="post" action="{% url "register" %}"
+                  enctype="multipart/form-data">
+
+                {% csrf_token %}
+                <fieldset>
+                    <div class="form-group">
+                        <label class="control-label">Username:</label>
+                        <input type="text" class="form-control" name="username">
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Email:</label>
+                        <input type="email" class="form-control" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Password:</label>
+                        <input type="password" class="form-control" name="password">
+                    </div>
+
+
+                    <!-- Provide a button to click to submit the form. -->
+                    <input type="submit" class="btn btn-primary" name="submit" value="Register"/>
+
+                </fieldset>
+            </form>
+        </div>
+    {% endif %}
+
+{% endblock %}

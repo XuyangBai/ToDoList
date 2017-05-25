@@ -1,9 +1,7 @@
 # coding=utf-8
 import datetime
-
 from django.contrib.auth.models import User
 from rest_framework import serializers
-
 from task.models import Task
 
 

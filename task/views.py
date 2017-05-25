@@ -7,7 +7,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -15,14 +15,14 @@ from rest_framework.views import APIView
 
 from task.models import Task
 from task.permissions import IsOwnerOrReadOnly
-from task.serializers import TaskSerializer, UserSerializer
+from task.serializers import TaskSerializer
 
 
 class TaskList(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'TaskList.html'
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (BasicAuthentication, SessionAuthentication)
+    #permission_classes = (permissions.IsAuthenticated,)
+    #authentication_classes = (BasicAuthentication, SessionAuthentication)
 
     def get(self, request, format=None):
         screen = request.GET.get('screen')
@@ -54,8 +54,8 @@ class TaskList(APIView):
 class TaskDetail(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'TaskDetail.html'
-    permission_classes = (IsOwnerOrReadOnly, permissions.IsAuthenticated)
-    authentication_classes = (BasicAuthentication, SessionAuthentication)
+    #permission_classes = (IsOwnerOrReadOnly, permissions.IsAuthenticated)
+    #authentication_classes = (BasicAuthentication, SessionAuthentication)
 
     def get(self, request, pk, format=None):
         task = get_object_or_404(Task, pk=pk)
@@ -79,7 +79,7 @@ class TaskDetail(APIView):
         return Response({'task': get_object_or_404(Task, pk=pk)})
 
     def delete(self, request, pk):
-        #ipdb.set_trace()
+        # ipdb.set_trace()
         task = get_object_or_404(Task, pk=pk)
         task.delete()
         # 删除之后回到主页
@@ -100,34 +100,13 @@ class TaskDetail(APIView):
             response = self.put(request, pk)
             return response
 
-
-class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    # 只有超级用户可以看
-    permission_classes = [permissions.IsAdminUser]
-
-
-class UserDetail(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAdminUser]
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-@api_view(['GET'])
-def api_root(request, format=None):
-    return Response({
-        'users': reverse('user-list', request=request, format=format),
-        'task': reverse('task-list', request=request, format=format)
-    })
-
-
-def register(request):
-    registered = False
-    if request.method == "POST":
-        user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
-        user.save()
-        # ipdb.set_trace()
-        return redirect(reverse('task-list'))
-    else:
-        return render(request, 'register.html', {'registered': registered})
+#
+# def register(request):
+#     registered = False
+#     if request.method == "POST":
+#         user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
+#         user.save()
+#         # ipdb.set_trace()
+#         return redirect(reverse('task-list'))
+#     else:
+#         return render(request, 'register.html', {'registered': registered})

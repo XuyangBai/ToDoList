@@ -1,0 +1,115 @@
+1. 用bootstrap写简单的页面，与ToDolist类似的
+	左侧 分时间/ 项目/标签等
+	右侧 list内容 （可以添加删除等）
+2. Django-rest-framework以及前后端分离的这种架构模式
+
+	用官方的tutorial这种方法可以实现 
+	列出所有、增加、删除、标记为完成、编辑的功能
+
+	事项： 创建者、时间、内容、优先级、exppire date、（协作者）
+
+教程1：
+	- models中定义了 Snippet类（片段） 包含 code  language style等
+	- serializers用于把一个类序列化为Json数据格式 ，可以序列化一个instance 也可以序列化整个Snippet类所有的instance（只需要设置serializer的参数many=True）  JSONRenderer包 可以把serializer.data变成json格式 用JSONParser可以把这个json格式的数据转回到string 
+	- class UserSerializer(serializers.ModelSerializer):使用ModelSerializer可以快捷地创建serializer
+
+教程2：
+	使response和request支持各种格式
+	http -a admin:bxy19960501 http://127.0.0.1:8000/snippets/ Accept:application/json
+	与这个是等价的 http -a admin:bxy19960501 http://127.0.0.1:8000/snippets.json
+	注意这个url后面都要加上一个/
+
+	用httpie post数据：
+	post form表单数据：
+	http -a admin:bxy19960501 --form POST http://127.0.0.1:8000/snippets/ code="print 123"
+	post json数据
+	http -a admin:bxy19960501 --json POST http://127.0.0.1:8000/snippets/ code="print 456"
+
+教程3：
+	类视图 
+	1.一般的类视图 class SnippetList(APIView):中定义get post等函数的方法
+	2.mixins的方法 可以调用其中的Retrieve Update Destroy函数
+	3.generic class-based views的方法 直接使用 ListCreateAPIView和RetrieveUpdateDestroyAPIView非常简洁
+
+教程4：
+	实现认证与权限功能
+	在model中添加auth字段
+	在serializer添加用户相关的接口
+	http -a admin:bxy19960501 http://127.0.0.1:8000/users/1/ Accept:application/json
+	http -a test2:test222222  http://127.0.0.1:8000/snippets/  别的用户也可以看到 
+
+	添加permission之后 别的用户只能看 不能删除
+
+	http POST http://127.0.0.1:8000/snippets/ code="print 123" 不登录就post会报错
+
+	http -a test2:test222222 POST http://127.0.0.1:8000/snippets/ code="print 789"
+	http -a admin:bxy19960501 POST http://127.0.0.1:8000/snippets/ code="echo 789"
+
+	(这个还是很有用的 todolist中如果有团队合作项目的话可以制作成只有发布者可以修改和删除 其他人只能看)
+
+教程5 
+	实现Snippet的代码高良
+	在view中加入一个SnippetHighlight类 ，serializer.py中加入highlight的field  在model中用pygment实现高良
+
+教程6
+	用viewset显示绑定url 
+	使用viewset和 router自动配置url
+
+教程7 
+	使用coreapi
+	coreapi credentials add 127.0.0.1 test2:test222222 --auth basic
+	coreapi get  test2:test222222 http://127.0.0.1:8000/schema/ 
+	coreapi action snippets list
+
+REST是什么
+- 所有的URI都代表一个资源
+
+
+from Task.models import Task
+from Task.serializers import TaskSerializer
+task=Task(title="test1",content="task1")
+task.save()
+
+<html>
+<head>BXY</head>
+<body>
+	<h1>I have My own Website</h1>
+</body>
+</html>
+
+
+
+
+Task-List
+http -a test2:test222222 GET http://127.0.0.1:8000/task/
+http -a test2:test222222 POST http://127.0.0.1:8000/task/ title="task111" content="123"  成功啦
+
+Task-detail
+http -a test2:test222222 GET http://127.0.0.1:8000/task/4/
+http -a test2:test222222 DELETE http://127.0.0.1:8000/task/1/  成功
+http -a test2:test222222 PUT http://127.0.0.1:8000/task/4/ title="task4" content="content4"  成功！ content是必须的
+
+在网页上不行是因为setting中的默认认证方式是
+
+认证出了问题：
+在网页上Post会出现400 error 调试发现 request.user是匿名用户
+
+解决方法：使用了 BasicAuthentication
+
+我在delele添加了调试 但是结果就没有进去 直接返回了405方法不允许 ，说明就没有进入delet函数  但是用http就进入了delete函数？？http是带有认证信息的
+
+
+查文档是最有效的
+
+
+1.detele之后的跳转  
+2.create   get
+3.finish   get  完成之后跳转到哪里？（不跳转 回到原始页面）
+4.截止时间
+5.按不同的排序  get
+7.django后端？？
+
+
+
+
+rest_framework 特有： serializer 与 form类似   Response对象  format_suffix_patterns

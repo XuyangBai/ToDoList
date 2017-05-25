@@ -9,7 +9,7 @@
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
             </p>
             <div class="jumbotron">
-                <h1>Hello, Xuyang!</h1>
+                <h1>Hello, {{ user.username }}!</h1>
                 <p>少壮不努力,老大徒伤悲.</p>
                 <form class="button-form pull-left" method="POST">
                      {% csrf_token %}
